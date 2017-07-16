@@ -5,12 +5,20 @@ Created on Sat Jul 15 21:58:21 2017
 @author: norden
 """
 
-import os,sys
+import os
 import word_content_structure
 from docx import Document
 #from docx.shared import Pt
 #from docx.shared import Inches
 #from docx.oxml.ns import qn
+
+
+
+import winreg
+def get_desktop():
+    key = winreg.OpenKey(winreg.HKEY_CURRENT_USER,\
+                          r'Software\Microsoft\Windows\CurrentVersion\Explorer\Shell Folders',)
+    return winreg.QueryValueEx(key, "Desktop")[0]
 
 
 words_list=[]
@@ -28,7 +36,8 @@ def main():
 
 
 def get_word_list(filename):
-    with open(filename,"r") as words_src:
+    desktop_path=get_desktop()
+    with open(desktop_path+"\\"+filename,"r") as words_src:
         for line in words_src:
             words_list.append(line.strip())
 #            print(line.strip())
@@ -51,7 +60,6 @@ def put_docx(filename,content_list):
 
     #打开文档
     document = Document()
-    document.left_margin=0
     #加入不同等级的标题
 #    document.add_heading(u'MS WORD写入测试',0)
 #    document.add_heading(u'一级标题',1)
@@ -107,13 +115,13 @@ def put_docx(filename,content_list):
     while unused_item_number>0:
         #增加表格
         table1 = document.add_table(rows=output_row_number, cols=output_column_number, style='Table Grid')
-        table1.width=500
+        table1.autofit = False
         page_first_item=current_item
         for i in range(min(unused_item_number,page_item_number)):
             first_page_content_item=content_list[current_item].word+"\n"+content_list[current_item].phonetic_symbol
             hdr_cells = table1.rows[int(i/output_column_number)].cells
             hdr_cells[i%output_column_number].text = first_page_content_item
-            print(hdr_cells[i%output_column_number].width)
+#            print(hdr_cells[i%output_column_number].width)
 #            hdr_cells[i%output_column_number].width=1828800*10
             current_item+=1
 
@@ -122,6 +130,7 @@ def put_docx(filename,content_list):
 
         #增加表格
         table2 = document.add_table(rows=output_row_number, cols=output_column_number, style='Table Grid')
+        table2.autofit = False
         current_item=page_first_item
         for i in range(min(unused_item_number,page_item_number)):
             second_page_content_item=content_list[current_item].paraphrase
@@ -136,9 +145,10 @@ def put_docx(filename,content_list):
             unused_item_number-=min(page_item_number,unused_item_number)
 
     #保存文件
-    if os.path.exists(r"d:\\Users\\norden\\Desktop\\"+filename):
-        os.remove(r"d:\\Users\\norden\\Desktop\\"+filename)
-    document.save(r"d:\\Users\\norden\\Desktop\\"+filename)
+    desktop_path=get_desktop()
+    if os.path.exists(desktop_path+"\\"+filename):
+        os.remove(desktop_path+"\\"+filename)
+    document.save(desktop_path+"\\"+filename)
 
 if __name__=="__main__":
     main()
