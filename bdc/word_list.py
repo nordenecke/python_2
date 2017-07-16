@@ -4,7 +4,7 @@ Created on Sat Jul 15 21:58:21 2017
 
 @author: norden
 """
-import word_content
+import word_content_structure
 
 words_list=[]
 
@@ -13,8 +13,8 @@ c_lst=[]
 def main():
     print("This is get_word_list main function!")
     print(get_word_list("words.txt"))
-    c_lst.append(word_content.word_content("111","bbb","ccc"))
-    c_lst.append(word_content.word_content("222","bbb","ccc"))
+    c_lst.append(word_content_structure.word_content("111","bbb","ccc"))
+    c_lst.append(word_content_structure.word_content("222","bbb","ccc"))
     put_content("words_content.txt",c_lst)
 
 
