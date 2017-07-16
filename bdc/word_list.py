@@ -19,7 +19,7 @@ def main():
 
 
 def get_word_list(filename):
-    with open(filename,"rb") as words_src:
+    with open(filename,"r") as words_src:
         for line in words_src:
             words_list.append(line.strip())
 #            print(line.strip())
@@ -27,15 +27,13 @@ def get_word_list(filename):
         return words_list
 
 def put_content(filename, content_list):
-    with open(filename,"wb+") as content_dst:
+    with open(filename,"w+") as content_dst:
         content_dst.truncate()
-        for i in content_list:
-            print(i)
-            content_dst.write(i.word+"\n")
-#            content_dst.write((word_content.word_content)i.phonetic_symbol+"\n")
-#            content_dst.write((word_content.word_content)i.paraphrase+"\n")
-#            content_dst.write("***************************")
-
+        for i in range(len(content_list)):
+            content_dst.write(content_list[i].word+"\n")
+            content_dst.write(content_list[i].phonetic_symbol+"\n")
+            content_dst.write(content_list[i].paraphrase+"\n")
+            content_dst.write("***************************\n")
         return True
 
 
