@@ -9,6 +9,7 @@ import word2content
 
 
 input_word_list_file=r"words.txt"
+output_docx_file=r"wordcard.docx"
 word_content_list=[]
 def wordcard_generator():
     wl=word_list.get_word_list(input_word_list_file)
@@ -21,13 +22,13 @@ def wordcard_generator():
 #        print(word_content.phonetic_symbol)
 #        print(word_content.paraphrase)
         word_content_list.append(word_content)
-    print(word_content_list)
+#    print(word_content_list)
 #    for i in word_content_list:
 #        print(i.word)
 #        print(i.phonetic_symbol)
 #        print(i.paraphrase)
-
-
+#format/output
+    word_list.put_docx(output_docx_file,word_content_list)
 
 def main():
     wordcard_generator()

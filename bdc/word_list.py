@@ -4,15 +4,24 @@ Created on Sat Jul 15 21:58:21 2017
 
 @author: norden
 """
+
+import os,sys
 import word_content_structure
+from docx import Document
+#from docx.shared import Pt
+#from docx.shared import Inches
+#from docx.oxml.ns import qn
+
 
 words_list=[]
-
 c_lst=[]
 
+output_column_number=3
+output_row_number=5
+
 def main():
-    print("This is get_word_list main function!")
-    print(get_word_list("words.txt"))
+#    print("This is get_word_list main function!")
+#    print(get_word_list("words.txt"))
     c_lst.append(word_content_structure.word_content("111","bbb","ccc"))
     c_lst.append(word_content_structure.word_content("222","bbb","ccc"))
     put_content("words_content.txt",c_lst)
@@ -36,7 +45,100 @@ def put_content(filename, content_list):
             content_dst.write("***************************\n")
         return True
 
+def put_docx(filename,content_list):
+    if len(content_list)==0:
+        return False
 
+    #打开文档
+    document = Document()
+    document.left_margin=0
+    #加入不同等级的标题
+#    document.add_heading(u'MS WORD写入测试',0)
+#    document.add_heading(u'一级标题',1)
+#    document.add_heading(u'二级标题',2)
+    #添加文本
+#    paragraph = document.add_paragraph(u'我们在做文本测试！')
+    #设置字号
+#    run = paragraph.add_run(u'设置字号、')
+#    run.font.size = Pt(24)
+
+    #设置字体
+#    run = paragraph.add_run('Set Font,')
+#    run.font.name = 'Consolas'
+
+    #设置中文字体
+#    run = paragraph.add_run(u'设置中文字体、')
+#    run.font.name=u'宋体'
+#    r = run._element
+#    r.rPr.rFonts.set(qn('w:eastAsia'), u'宋体')
+
+    #设置斜体
+#    run = paragraph.add_run(u'斜体、')
+#    run.italic = True
+
+    #设置粗体
+#    run = paragraph.add_run(u'粗体').bold = True
+
+    #增加引用
+#    document.add_paragraph('Intense quote', style='Intense Quote')
+
+    #增加无序列表
+#    document.add_paragraph(
+#        u'无序列表元素1', style='List Bullet'
+#    )
+#    document.add_paragraph(
+#        u'无序列表元素2', style='List Bullet'
+#    )
+    #增加有序列表
+#    document.add_paragraph(
+#        u'有序列表元素1', style='List Number'
+#    )
+#    document.add_paragraph(
+#        u'有序列表元素2', style='List Number'
+#    )
+    #增加图像（此处用到图像image.bmp，请自行添加脚本所在目录中）
+#    document.add_picture('image.bmp', width=Inches(1.25))
+
+    page_item_number=output_column_number*output_row_number
+    total_input_item_number=len(content_list)
+    unused_item_number=total_input_item_number
+    current_item=0
+
+    while unused_item_number>0:
+        #增加表格
+        table1 = document.add_table(rows=output_row_number, cols=output_column_number, style='Table Grid')
+        table1.width=500
+        page_first_item=current_item
+        for i in range(min(unused_item_number,page_item_number)):
+            first_page_content_item=content_list[current_item].word+"\n"+content_list[current_item].phonetic_symbol
+            hdr_cells = table1.rows[int(i/output_column_number)].cells
+            hdr_cells[i%output_column_number].text = first_page_content_item
+            print(hdr_cells[i%output_column_number].width)
+#            hdr_cells[i%output_column_number].width=1828800*10
+            current_item+=1
+
+        #增加分页
+        document.add_page_break()
+
+        #增加表格
+        table2 = document.add_table(rows=output_row_number, cols=output_column_number, style='Table Grid')
+        current_item=page_first_item
+        for i in range(min(unused_item_number,page_item_number)):
+            second_page_content_item=content_list[current_item].paraphrase
+            hdr_cells = table2.rows[int(i/output_column_number)].cells
+            hdr_cells[i%output_column_number].text = second_page_content_item
+            current_item+=1
+
+        if unused_item_number -page_item_number<=0:
+            break
+        else:
+            document.add_page_break()
+            unused_item_number-=min(page_item_number,unused_item_number)
+
+    #保存文件
+    if os.path.exists(r"d:\\Users\\norden\\Desktop\\"+filename):
+        os.remove(r"d:\\Users\\norden\\Desktop\\"+filename)
+    document.save(r"d:\\Users\\norden\\Desktop\\"+filename)
 
 if __name__=="__main__":
     main()

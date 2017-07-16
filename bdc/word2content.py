@@ -25,10 +25,14 @@ def word2content(word):
     pattern3=re.compile('<span class=\"phonetic\">.*?</span>')
 
     word_str=""
+    count=0
     for i in pattern2.findall(result):
         w_l=i.strip('<li>').strip('</li>')
 #        print(w_l)
         word_str+=w_l+"\n"
+        count+=1
+        if count>=3:
+            break
 
     phonetic_list=[]
     phonetic_str=""
