@@ -20,6 +20,8 @@ def word2content(word):
 
     pattern=re.compile("<h2.*?</ul>",re.DOTALL)
     content_text=content.read().decode('utf-8')
+
+    print("error word:%s" %word)
     result=pattern.search(content_text).group()
     pattern2=re.compile('<li>.*?</li>')
     pattern3=re.compile('<span class=\"phonetic\">.*?</span>')

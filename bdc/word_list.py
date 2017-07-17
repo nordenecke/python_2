@@ -135,7 +135,7 @@ def put_docx(filename,content_list):
         for i in range(min(unused_item_number,page_item_number)):
             second_page_content_item=content_list[current_item].paraphrase
             hdr_cells = table2.rows[int(i/output_column_number)].cells
-            hdr_cells[i%output_column_number].text = second_page_content_item
+            hdr_cells[output_column_number-i%output_column_number-1].text = second_page_content_item
             current_item+=1
 
         if unused_item_number -page_item_number<=0:
