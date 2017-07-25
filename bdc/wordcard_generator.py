@@ -18,7 +18,7 @@ def wordcard_generator():
 #        print(item)
         word_content=word2content.word2content(item)
 #        print(word_content)
-#        print(word_content.word)
+        print(word_content.word)
 #        print(word_content.phonetic_symbol)
 #        print(word_content.paraphrase)
         word_content_list.append(word_content)
