@@ -62,7 +62,9 @@ def word2content(word):
 
             for i in pattern_word_str3.findall(result):
                 w_l=i.strip('<p>').strip('</p>')
-                word_str+=w_l+"\n"
+                if count==1:
+                    word_str+=w_l+"\n"
+                    break
                 count+=1
                 if count>=2:
                     break
