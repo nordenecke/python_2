@@ -2,7 +2,7 @@
  True,
  False,
  True,
- None,
+ 'wordcard.ico',
  None,
  False,
  False,
@@ -34,7 +34,7 @@
  [],
  False,
  False,
- 1500989634,
+ 1500990811,
  [('run.exe',
    'd:\\Anaconda3\\lib\\site-packages\\PyInstaller\\bootloader\\Windows-64bit\\run.exe',
    'EXECUTABLE')])
