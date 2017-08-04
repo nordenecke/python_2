@@ -14,11 +14,11 @@ from docx import Document
 
 
 
-import winreg
+import _winreg
 def get_desktop():
-    key = winreg.OpenKey(winreg.HKEY_CURRENT_USER,\
+    key = _winreg.OpenKey(_winreg.HKEY_CURRENT_USER,\
                           r'Software\Microsoft\Windows\CurrentVersion\Explorer\Shell Folders',)
-    return winreg.QueryValueEx(key, "Desktop")[0]
+    return _winreg.QueryValueEx(key, "Desktop")[0]
 
 
 words_list=[]

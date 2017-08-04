@@ -4,7 +4,7 @@ block_cipher = None
 
 
 a = Analysis(['wordcard_generator.py'],
-             pathex=['E:\\workspace\\python\\bdc'],
+             pathex=['C:\\workspace\\python_2\\bdc'],
              binaries=[],
              datas=[],
              hiddenimports=[],

@@ -19,7 +19,7 @@ def word2content(word):
 
     url='http://dict.youdao.com/search?q=%s'%word
 
-    content=urllib.request.urlopen(url)
+    content=urllib.urlopen(url)
 
     content_text=content.read().decode('utf-8')
     pattern_phonetic=re.compile("<h2.*?</h2>",re.DOTALL)

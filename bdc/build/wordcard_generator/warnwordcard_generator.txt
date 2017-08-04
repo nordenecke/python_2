@@ -1,18 +1,20 @@
-missing module named resource - imported by posix, E:\workspace\python\bdc\wordcard_generator.py
-missing module named posix - imported by os, E:\workspace\python\bdc\wordcard_generator.py
-missing module named _posixsubprocess - imported by subprocess, E:\workspace\python\bdc\wordcard_generator.py
-missing module named 'org.python' - imported by pickle, E:\workspace\python\bdc\wordcard_generator.py, xml.sax
-missing module named readline - imported by cmd, code, pdb, E:\workspace\python\bdc\wordcard_generator.py
-excluded module named _frozen_importlib - imported by importlib, importlib.abc, E:\workspace\python\bdc\wordcard_generator.py
-missing module named _frozen_importlib_external - imported by importlib._bootstrap, importlib, importlib.abc, E:\workspace\python\bdc\wordcard_generator.py
-missing module named _winreg - imported by platform, E:\workspace\python\bdc\wordcard_generator.py
-missing module named _scproxy - imported by urllib.request
-missing module named java - imported by platform, E:\workspace\python\bdc\wordcard_generator.py
-missing module named 'java.lang' - imported by platform, E:\workspace\python\bdc\wordcard_generator.py, xml.sax._exceptions
-missing module named vms_lib - imported by platform, E:\workspace\python\bdc\wordcard_generator.py
-missing module named termios - imported by tty, E:\workspace\python\bdc\wordcard_generator.py, getpass
-missing module named grp - imported by shutil, tarfile, E:\workspace\python\bdc\wordcard_generator.py
-missing module named pwd - imported by posixpath, shutil, tarfile, http.server, webbrowser, E:\workspace\python\bdc\wordcard_generator.py, netrc, getpass
-missing module named _dummy_threading - imported by dummy_threading, E:\workspace\python\bdc\wordcard_generator.py
-missing module named org - imported by copy, E:\workspace\python\bdc\wordcard_generator.py
-missing module named StringIO - imported by docx.compat
+missing module named readline - imported by cmd, pdb
+missing module named 'org.python' - imported by pickle
+missing module named fcntl - imported by tempfile, subprocess
+missing module named riscosenviron - imported by os
+missing module named riscospath - imported by os
+missing module named riscos - imported by os
+missing module named ce - imported by os
+missing module named _emx_link - imported by os
+missing module named os2 - imported by os
+missing module named pwd - imported by posixpath, shutil, tarfile, getpass
+missing module named posix - imported by os
+missing module named resource - imported by posix
+missing module named org - imported by copy
+missing module named _scproxy - imported by urllib
+missing module named EasyDialogs - imported by getpass
+missing module named termios - imported by getpass
+missing module named SOCKS - imported by ftplib
+missing module named rourl2path - imported by urllib
+missing module named _sysconfigdata - imported by distutils.sysconfig
+missing module named grp - imported by shutil, tarfile
