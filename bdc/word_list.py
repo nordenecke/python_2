@@ -8,10 +8,10 @@ Created on Sat Jul 15 21:58:21 2017
 import os
 import word_content_structure
 from docx import Document
-#from docx.shared import Pt
+from docx.shared import Pt
 #from docx.shared import Inches
-#from docx.oxml.ns import qn
-
+from docx.oxml.ns import qn
+from docx.enum.text import WD_ALIGN_PARAGRAPH
 
 
 import _winreg
@@ -53,12 +53,58 @@ def put_content(filename, content_list):
             content_dst.write(content_list[i].paraphrase+"\n")
             content_dst.write("***************************\n")
         return True
+    
+def add_word_and_phonetic_symbol_paragraph(cell,word,phonetic_symbol):
+    #add word
+    paragraph1=cell.add_paragraph(u"")
+    paragraph1.alignment=WD_ALIGN_PARAGRAPH.CENTER
+    run = paragraph1.add_run(word)
+    run.font.size = Pt(24)
+    run.font.name = 'Consolas'
+    run.bold=True
 
+
+    #add phonetic_symbol
+    paragraph2=cell.add_paragraph(u"")
+    paragraph2.alignment=WD_ALIGN_PARAGRAPH.CENTER
+    run = paragraph2.add_run(phonetic_symbol)
+    run.font.size = Pt(12)
+    run.font.name = 'Consolas'
+    run.bold=False
+
+    
+def add_paraphrase_paragraph(cell,paraphrase):
+    #add word
+    paragraph1=cell.add_paragraph(paraphrase)
+    paragraph1.alignment=WD_ALIGN_PARAGRAPH.LEFT
+    #set font size
+    run = paragraph1.add_run(u'set font size.')
+    run.font.size = Pt(10)
+
+    #set font
+#    run = paragraph1.add_run(u'Set Font.')
+#    run.font.name = 'Consolas'
+
+    #set chinese font
+    run = paragraph1.add_run(u'set chinese font')
+    run.font.name=u'宋体'
+    r = run._element
+    r.rPr.rFonts.set(qn('w:eastAsia'), u'宋体')
+
+    #set italic
+#    run = paragraph1.add_run(u'set italic、')
+#    run.italic = True
+
+    #set bold
+    run = paragraph1.add_run(u'bold').bold = False
+
+
+    
 def put_docx(filename,content_list):
     if len(content_list)==0:
         return False
 
-    #打开文档
+    #open document
     document = Document()
     #加入不同等级的标题
 #    document.add_heading(u'MS WORD写入测试',0)
@@ -118,10 +164,12 @@ def put_docx(filename,content_list):
         table1.autofit = False
         page_first_item=current_item
         for i in range(min(unused_item_number,page_item_number)):
-            first_page_content_item=content_list[current_item].word+"\n"+content_list[current_item].phonetic_symbol
+#            first_page_content_item=content_list[current_item].word+"\n"+content_list[current_item].phonetic_symbol
             hdr_cells = table1.rows[int(i/output_column_number)].cells
-            hdr_cells[i%output_column_number].text = first_page_content_item
-#            print(hdr_cells[i%output_column_number].width)
+#            hdr_cells[i%output_column_number].text = first_page_content_item
+            add_word_and_phonetic_symbol_paragraph(hdr_cells[i%output_column_number],content_list[current_item].word,content_list[current_item].phonetic_symbol)
+            print hdr_cells[i%output_column_number].width
+#            print table1.rows[0].height
 #            hdr_cells[i%output_column_number].width=1828800*10
             current_item+=1
 
@@ -133,9 +181,10 @@ def put_docx(filename,content_list):
         table2.autofit = False
         current_item=page_first_item
         for i in range(min(unused_item_number,page_item_number)):
-            second_page_content_item=content_list[current_item].paraphrase
+#            second_page_content_item=content_list[current_item].paraphrase
             hdr_cells = table2.rows[int(i/output_column_number)].cells
-            hdr_cells[output_column_number-i%output_column_number-1].text = second_page_content_item
+#            hdr_cells[output_column_number-i%output_column_number-1].text = second_page_content_item
+            add_paraphrase_paragraph(hdr_cells[output_column_number-i%output_column_number-1],content_list[current_item].paraphrase)
             current_item+=1
 
         if unused_item_number -page_item_number<=0:
