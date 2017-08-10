@@ -7,12 +7,16 @@ Created on Sat Jul 15 21:58:21 2017
 
 import os
 import word_content_structure
+import traceback
+
 from docx import Document
 from docx.shared import Pt
 #from docx.shared import Inches
 from docx.oxml.ns import qn
 from docx.enum.text import WD_ALIGN_PARAGRAPH
-
+from docx.enum.table import WD_TABLE_ALIGNMENT
+from docx.oxml import OxmlElement
+#from docx.oxml.shared import OxmlElement, qn
 
 import _winreg
 def get_desktop():
@@ -27,12 +31,6 @@ c_lst=[]
 output_column_number=3
 output_row_number=5
 
-def main():
-#    print("This is get_word_list main function!")
-#    print(get_word_list("words.txt"))
-    c_lst.append(word_content_structure.word_content("111","bbb","ccc"))
-    c_lst.append(word_content_structure.word_content("222","bbb","ccc"))
-    put_content("words_content.txt",c_lst)
 
 
 def get_word_list(filename):
@@ -59,7 +57,21 @@ def add_word_and_phonetic_symbol_paragraph(cell,word,phonetic_symbol):
     paragraph1=cell.add_paragraph(u"")
     paragraph1.alignment=WD_ALIGN_PARAGRAPH.CENTER
     run = paragraph1.add_run(word)
-    run.font.size = Pt(24)
+    if len(word) <= 7:
+        run.font.size = Pt(48)
+    elif len(word) <= 9:
+        run.font.size = Pt(36)
+    elif len(word) <= 14:
+        run.font.size = Pt(24)
+    elif len(word) <= 15:
+        run.font.size = Pt(22)
+    elif len(word) <= 17:
+        run.font.size = Pt(20)
+    elif len(word) <= 18:
+        run.font.size = Pt(18)
+    else:
+        run.font.size = Pt(16)
+        
     run.font.name = 'Consolas'
     run.bold=True
 
@@ -68,9 +80,9 @@ def add_word_and_phonetic_symbol_paragraph(cell,word,phonetic_symbol):
     paragraph2=cell.add_paragraph(u"")
     paragraph2.alignment=WD_ALIGN_PARAGRAPH.CENTER
     run = paragraph2.add_run(phonetic_symbol)
-    run.font.size = Pt(12)
+    run.font.size = Pt(16)
     run.font.name = 'Consolas'
-    run.bold=False
+    run.bold=True
 
     
 def add_paraphrase_paragraph(cell,paraphrase):
@@ -97,8 +109,29 @@ def add_paraphrase_paragraph(cell,paraphrase):
 
     #set bold
     run = paragraph1.add_run(u'bold').bold = False
+    
+def set_raws_height(rows):
+    for i in range(len(rows)):
+        tr=rows[i]._tr
+        trPr=tr.get_or_add_trPr()
+        trHeight = OxmlElement('w:trHeight')
+        trHeight.set(qn('w:val'), "3032")
+        trHeight.set(qn('w:hRule'), "atLeast")
+        trPr.append(trHeight)  
 
 
+
+def set_cell_vertical_alignment(cell, align="center"): 
+    try:   
+        tc = cell._tc
+        tcPr = tc.get_or_add_tcPr()
+        tcValign = OxmlElement('w:vAlign')  
+        tcValign.set(qn('w:val'), align)  
+        tcPr.append(tcValign)
+        return True 
+    except:
+        traceback.print_exc()             
+        return False
     
 def put_docx(filename,content_list):
     if len(content_list)==0:
@@ -162,31 +195,35 @@ def put_docx(filename,content_list):
         #增加表格
         table1 = document.add_table(rows=output_row_number, cols=output_column_number, style='Table Grid')
         table1.autofit = False
+        table1.alignment = WD_TABLE_ALIGNMENT.CENTER
         page_first_item=current_item
         for i in range(min(unused_item_number,page_item_number)):
 #            first_page_content_item=content_list[current_item].word+"\n"+content_list[current_item].phonetic_symbol
             hdr_cells = table1.rows[int(i/output_column_number)].cells
 #            hdr_cells[i%output_column_number].text = first_page_content_item
             add_word_and_phonetic_symbol_paragraph(hdr_cells[i%output_column_number],content_list[current_item].word,content_list[current_item].phonetic_symbol)
-            print hdr_cells[i%output_column_number].width
-#            print table1.rows[0].height
-#            hdr_cells[i%output_column_number].width=1828800*10
+#            print hdr_cells[i%output_column_number].width
+            set_cell_vertical_alignment(hdr_cells[i%output_column_number]) 
+            hdr_cells[i%output_column_number].width=1828800*1.375
             current_item+=1
-
+        set_raws_height(table1.rows)
         #增加分页
         document.add_page_break()
 
         #增加表格
         table2 = document.add_table(rows=output_row_number, cols=output_column_number, style='Table Grid')
         table2.autofit = False
+        table2.alignment = WD_TABLE_ALIGNMENT.CENTER
         current_item=page_first_item
         for i in range(min(unused_item_number,page_item_number)):
 #            second_page_content_item=content_list[current_item].paraphrase
             hdr_cells = table2.rows[int(i/output_column_number)].cells
 #            hdr_cells[output_column_number-i%output_column_number-1].text = second_page_content_item
             add_paraphrase_paragraph(hdr_cells[output_column_number-i%output_column_number-1],content_list[current_item].paraphrase)
+            set_cell_vertical_alignment(hdr_cells[output_column_number-i%output_column_number-1]) 
+            hdr_cells[output_column_number-i%output_column_number-1].width=1828800*1.375
             current_item+=1
-
+        set_raws_height(table2.rows)
         if unused_item_number -page_item_number<=0:
             break
         else:
@@ -197,7 +234,28 @@ def put_docx(filename,content_list):
     desktop_path=get_desktop()
     if os.path.exists(desktop_path+"\\"+filename):
         os.remove(desktop_path+"\\"+filename)
+        sections = document.sections
+    for section in sections:
+#        print section.top_margin
+        section.top_margin = 914400/8
+#        print section.bottom_margin
+        section.bottom_margin = 914400/8
+#        print section.left_margin
+        section.left_margin = 1143000/8
+#        print section.right_margin
+        section.right_margin = 1143000/8
     document.save(desktop_path+"\\"+filename)
+
+
+def main():
+#    print("This is get_word_list main function!")
+#    print(get_word_list("words.txt"))
+    c_lst.append(word_content_structure.word_content("111","bbb","ccc"))
+    c_lst.append(word_content_structure.word_content("222","bbb","ccc"))
+    put_content("words_content.txt",c_lst)
+
 
 if __name__=="__main__":
     main()
+    
+    
