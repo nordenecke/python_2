@@ -87,28 +87,31 @@ def add_word_and_phonetic_symbol_paragraph(cell,word,phonetic_symbol):
     
 def add_paraphrase_paragraph(cell,paraphrase):
     #add word
-    paragraph1=cell.add_paragraph(paraphrase)
+    paragraph1=cell.add_paragraph(u"")
     paragraph1.alignment=WD_ALIGN_PARAGRAPH.LEFT
     #set font size
-    run = paragraph1.add_run(u'set font size.')
-    run.font.size = Pt(10)
+    run = paragraph1.add_run(paraphrase)
+    run.font.size = Pt(12)
+    run.font.name=u'微软雅黑'
+    r = run._element
+    r.rPr.rFonts.set(qn('w:eastAsia'), u'微软雅黑')
 
     #set font
 #    run = paragraph1.add_run(u'Set Font.')
 #    run.font.name = 'Consolas'
 
     #set chinese font
-    run = paragraph1.add_run(u'set chinese font')
-    run.font.name=u'宋体'
-    r = run._element
-    r.rPr.rFonts.set(qn('w:eastAsia'), u'宋体')
+#    run = paragraph1.add_run(u'set chinese font')
+#    run.font.name=u'宋体'
+#    r = run._element
+#    r.rPr.rFonts.set(qn('w:eastAsia'), u'宋体')
 
     #set italic
 #    run = paragraph1.add_run(u'set italic、')
 #    run.italic = True
 
     #set bold
-    run = paragraph1.add_run(u'bold').bold = False
+#    run = paragraph1.add_run(u'bold').bold = False
     
 def set_raws_height(rows):
     for i in range(len(rows)):
@@ -234,8 +237,8 @@ def put_docx(filename,content_list):
     desktop_path=get_desktop()
     if os.path.exists(desktop_path+"\\"+filename):
         os.remove(desktop_path+"\\"+filename)
-        sections = document.sections
-    for section in sections:
+    Sections = document.sections
+    for section in Sections:
 #        print section.top_margin
         section.top_margin = 914400/8
 #        print section.bottom_margin
