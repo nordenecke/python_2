@@ -61,11 +61,13 @@ def add_word_and_phonetic_symbol_paragraph(cell,word,phonetic_symbol):
         run.font.size = Pt(48)
     elif len(word) <= 9:
         run.font.size = Pt(36)
+    elif len(word) <= 12:
+        run.font.size = Pt(28)
     elif len(word) <= 14:
         run.font.size = Pt(24)
     elif len(word) <= 15:
         run.font.size = Pt(22)
-    elif len(word) <= 17:
+    elif len(word) <= 16:
         run.font.size = Pt(20)
     elif len(word) <= 18:
         run.font.size = Pt(18)
@@ -193,6 +195,7 @@ def put_docx(filename,content_list):
     total_input_item_number=len(content_list)
     unused_item_number=total_input_item_number
     current_item=0
+    cell_width=1828800*1.36
 
     while unused_item_number>0:
         #增加表格
@@ -207,7 +210,7 @@ def put_docx(filename,content_list):
             add_word_and_phonetic_symbol_paragraph(hdr_cells[i%output_column_number],content_list[current_item].word,content_list[current_item].phonetic_symbol)
 #            print hdr_cells[i%output_column_number].width
             set_cell_vertical_alignment(hdr_cells[i%output_column_number]) 
-            hdr_cells[i%output_column_number].width=1828800*1.375
+            hdr_cells[i%output_column_number].width=cell_width
             current_item+=1
         set_raws_height(table1.rows)
         #增加分页
@@ -224,7 +227,7 @@ def put_docx(filename,content_list):
 #            hdr_cells[output_column_number-i%output_column_number-1].text = second_page_content_item
             add_paraphrase_paragraph(hdr_cells[output_column_number-i%output_column_number-1],content_list[current_item].paraphrase)
             set_cell_vertical_alignment(hdr_cells[output_column_number-i%output_column_number-1]) 
-            hdr_cells[output_column_number-i%output_column_number-1].width=1828800*1.375
+            hdr_cells[output_column_number-i%output_column_number-1].width=cell_width
             current_item+=1
         set_raws_height(table2.rows)
         if unused_item_number -page_item_number<=0:
@@ -239,13 +242,9 @@ def put_docx(filename,content_list):
         os.remove(desktop_path+"\\"+filename)
     Sections = document.sections
     for section in Sections:
-#        print section.top_margin
         section.top_margin = 914400/8
-#        print section.bottom_margin
         section.bottom_margin = 914400/8
-#        print section.left_margin
         section.left_margin = 1143000/8
-#        print section.right_margin
         section.right_margin = 1143000/8
     document.save(desktop_path+"\\"+filename)
 
