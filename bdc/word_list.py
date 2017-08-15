@@ -195,7 +195,7 @@ def put_docx(filename,content_list):
     total_input_item_number=len(content_list)
     unused_item_number=total_input_item_number
     current_item=0
-    cell_width=1828800*1.36
+    cell_width=1828800*1.35
 
     while unused_item_number>0:
         #增加表格
