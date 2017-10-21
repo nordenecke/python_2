@@ -13,10 +13,13 @@ import os
 from pypinyin import pinyin
 
 from docx import Document
-
+from docx.shared import Pt
+from docx.oxml.ns import qn
+from docx.enum.text import WD_ALIGN_PARAGRAPH
+#from docx.enum.table import WD_TABLE_ALIGNMENT
 ###############################################################################
-input_word_list_file=r"Chinese_words.txt"
-output_docx_file=r"看拼音写汉字.doc"
+input_word_list_file=u"Chinese_words.txt"
+output_docx_file=u"看拼音写汉字.docx"
 
 
 ###############################################################################
@@ -67,11 +70,12 @@ def get_cn_word_file_path(filename):
     return file_path
 ###############################################################################
 
-def generator(source):
-    if not source:
+def generator(hzlst):
+    if not hzlst:
         STOP()
     pinyin_lst = []
 #    hanzi_lst = []
+    source=list(hzlst)
     while True:
         if not source:
             break
@@ -106,12 +110,61 @@ def pinyin_generator():
 #    page_limit = 20  # 控制输出页数
     return generator(source)
 
-def export2doc(hzlst, pylst, export_file_name):
-    if len(hzlst)==0 || len(pylst)==0:
-        return False
+def add_lesson_number_paragraph(document,lesson_number):
+    paragraph1 = document.add_paragraph(u'')
+    
+    #add word
+    paragraph1.alignment=WD_ALIGN_PARAGRAPH.LEFT
+    #set font size
+    run = paragraph1.add_run(lesson_number)
+    run.font.size = Pt(12)
+    run.font.name=u'微软雅黑'
+    r = run._element
+    r.rPr.rFonts.set(qn('w:eastAsia'), u'微软雅黑')
 
+def add_pinyin_paragraph(cell,lesson_number):
+    paragraph1 = cell.add_paragraph(u'')
+    
+    #add word
+    paragraph1.alignment=WD_ALIGN_PARAGRAPH.LEFT
+    #set font size
+    run = paragraph1.add_run(lesson_number)
+    run.font.size = Pt(12)
+    run.font.name=u'微软雅黑'
+    r = run._element
+    r.rPr.rFonts.set(qn('w:eastAsia'), u'微软雅黑')
+
+def add_hanzi_space_paragraph(cell,hanzi_space):
+    paragraph1 = cell.add_paragraph(u'')
+    
+    #add word
+    paragraph1.alignment=WD_ALIGN_PARAGRAPH.LEFT
+    #set font size
+    run = paragraph1.add_run(hanzi_space)
+    run.font.size = Pt(12)
+    run.font.name=u'微软雅黑'
+    r = run._element
+    r.rPr.rFonts.set(qn('w:eastAsia'), u'微软雅黑')
+
+def export2doc(hzlst, pylst, export_file_name):
+    if len(hzlst)==0 or len(pylst)==0:
+        return False
+    
+    first = True
     #open document
     document = Document()
+    
+    for i in hzlst:
+        print i
+        if i.startswith('#'):
+            lesson_number= u'第'+i[1:]+u'课'
+            print lesson_number
+            if first == True:
+                print 'Do nothing for the first #!'
+                first = False
+            else:
+                document.add_page_break()
+            add_lesson_number_paragraph(document,lesson_number)
 
      #save file
     desktop_path=get_desktop()
@@ -123,7 +176,7 @@ def export2doc(hzlst, pylst, export_file_name):
 
 def main():
     hzlst = load_cn_words(get_cn_word_file_path(input_word_list_file))
-    print '\nsource='
+    print '\nhzlst='
     print hzlst
 
 #    columns, rows = 15, 11  # 控制每页行列
