@@ -22,7 +22,8 @@ from docx.oxml import OxmlElement
 ###############################################################################
 input_word_list_file=u"Chinese_words.txt"
 output_docx_file=u"看拼音写汉字.docx"
-
+page_column_number = 20
+Page_row_number = 16
 
 ###############################################################################
 
@@ -72,16 +73,16 @@ def get_cn_word_file_path(filename):
     return file_path
 ###############################################################################
 
-def set_cell_vertical_alignment(cell, align="center"): 
-    try:   
+def set_cell_vertical_alignment(cell, align="center"):
+    try:
         tc = cell._tc
         tcPr = tc.get_or_add_tcPr()
-        tcValign = OxmlElement('w:vAlign')  
-        tcValign.set(qn('w:val'), align)  
+        tcValign = OxmlElement('w:vAlign')
+        tcValign.set(qn('w:val'), align)
         tcPr.append(tcValign)
-        return True 
+        return True
     except:
-        traceback.print_exc()             
+        traceback.print_exc()
         return False
 
 def generator(hzlst):
@@ -111,7 +112,6 @@ def generator(hzlst):
 #    print pinyin_lst
 #    print '\nhanzi_lst='
 #    print hanzi_lst
-#    return pinyin_lst + ['EOL'] + hanzi_lst + ['EOL']   # 拼音+汉字空格 [老婆要求 :( ]
     return pinyin_lst
 
 
@@ -126,7 +126,7 @@ def pinyin_generator():
 
 def add_lesson_number_paragraph(document,lesson_number):
     paragraph1 = document.add_paragraph(u'')
-    
+
     #add word
     paragraph1.alignment=WD_ALIGN_PARAGRAPH.CENTER
     #set font size
@@ -138,7 +138,7 @@ def add_lesson_number_paragraph(document,lesson_number):
 
 def add_pinyin_paragraph(cell,lesson_number):
     paragraph1 = cell.add_paragraph(u'')
-    
+
     #add word
     paragraph1.alignment=WD_ALIGN_PARAGRAPH.CENTER
     #set font size
@@ -150,7 +150,7 @@ def add_pinyin_paragraph(cell,lesson_number):
 
 def add_hanzi_space_paragraph(cell,hanzi_space_number):
     paragraph1 = cell.add_paragraph(u'')
-    
+
     #add word
     paragraph1.alignment=WD_ALIGN_PARAGRAPH.CENTER
     #set font size
@@ -164,35 +164,60 @@ def add_hanzi_space_paragraph(cell,hanzi_space_number):
     r = run._element
     r.rPr.rFonts.set(qn('w:eastAsia'), u'微软雅黑')
 
-def add_pinyin_table_cell(document,j):
-#    table1 = document.add_table(rows=2, cols=len(j))
-    table1 = document.add_table(rows=2, cols=len(j), style='Table Grid')
-#    table1 = document.add_table(rows=2, cols=len(j), style='Light Shading Accent 1')
-    table1.autofit = False
-#    table1.autofit = True
-    table1.alignment = WD_TABLE_ALIGNMENT.CENTER
-    for i in range(len(j)):
-        py_cell=table1.rows[0].cells
-        hz_cell=table1.rows[1].cells
-        add_pinyin_paragraph(py_cell[i],j[i])
+def create_twolines_table(document):
+#    table = document.add_table(rows=2, cols=len(j))
+    table = document.add_table(rows=2, cols=page_column_number, style='Table Grid')
+#    table = document.add_table(rows=2, cols=len(j), style='Light Shading Accent 1')
+    table.autofit = False
+#    table.autofit = True
+    table.alignment = WD_TABLE_ALIGNMENT.CENTER
+    return table
+
+def set_twolines_table_cell(table,lst):
+    for i in range(len(lst)):
+        py_cell=table.rows[0].cells
+        hz_cell=table.rows[1].cells
+        add_pinyin_paragraph(py_cell[i],lst[i])
         set_cell_vertical_alignment(py_cell[i])
         add_hanzi_space_paragraph(hz_cell[i],2)
     return
 
-def add_twoline_table():
-    return
+def get_py_one_word(lst, index):
+    print 'lst[index]='+bytes(index)
+    print lst[index]
+    length=0
+    for i in range(len(lst[index])):
+      print len(lst[index][i][0])
+      length+=len(lst[index][i][0])
+      length+=1                     #add space
+    if length > 0:
+      length-=1
+    print length
+    return length
 
-def get_one_word():
-    return
+def get_hz_one_word(lst, index):
+    print 'lst[index]='+bytes(index)
+    print lst[index]
+    length=0
+    for i in range(len(lst[index])):
+      print len(lst[index][i][0])
+      length+=len(lst[index][i][0])*2
+      length+=1                     #add space
+    if length > 0:
+      length-=1
+    print length
+    return length
 
 def export2doc(hzlst, pylst, export_file_name):
     if len(hzlst)==0 or len(pylst)==0:
         return False
-    
+
     first = True
     #open document
     document = Document()
-    
+
+    column_width=0
+    begin = 0
     for j in range(len(pylst)):
         print j
         if pylst[j][0][0].startswith('#'):
@@ -206,7 +231,16 @@ def export2doc(hzlst, pylst, export_file_name):
                 document.add_page_break()
                 add_lesson_number_paragraph(document,lesson_number)
         else:
-            add_pinyin_table_cell(document,pylst[j])
+            hzlen=get_hz_one_word(hzlst,j)
+            pylen=get_py_one_word(pylst,j)
+            length=max(hzlen,pylen)
+            if column_width+length <= page_column_number:
+                print length
+            else:
+                table=create_twolines_table(document)
+                temp_list=pylst[begin:j-1]
+                set_twolines_table_cell(table,temp_list)
+                begin=j
 #            add_lesson_number_paragraph(document,u'#########')
 
      #save file
