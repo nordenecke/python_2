@@ -22,7 +22,7 @@ from docx.oxml import OxmlElement
 ###############################################################################
 input_word_list_file=u"Chinese_words.txt"
 output_docx_file=u"看拼音写汉字.docx"
-page_column_number = 20
+page_column_number = 10
 Page_row_number = 16
 
 ###############################################################################
@@ -43,7 +43,7 @@ def STOP(message=''):
 
 def load_cn_words(fname):
     ret=[]
-    print 'Chinese file path='+fname
+#    print 'Chinese file path='+fname
     if not os.path.isfile(fname):
         STOP('file %s not exist!'% fname)
     for l in open(fname,'r').read().decode(encoding='utf8').splitlines():
@@ -85,6 +85,15 @@ def set_cell_vertical_alignment(cell, align="center"):
         traceback.print_exc()
         return False
 
+def set_raws_height(rows):
+    for i in range(len(rows)):
+        tr=rows[i]._tr
+        trPr=tr.get_or_add_trPr()
+        trHeight = OxmlElement('w:trHeight')
+        trHeight.set(qn('w:val'), "512")
+        trHeight.set(qn('w:hRule'), "atLeast")
+        trPr.append(trHeight)
+
 def generator(hzlst):
     if not hzlst:
         STOP()
@@ -117,8 +126,8 @@ def generator(hzlst):
 
 def pinyin_generator():
     source = load_cn_words(get_cn_word_file_path(input_word_list_file))
-    print '\nsource='
-    print source
+#    print '\nsource='
+#    print source
 
 #    columns, rows = 15, 11  # 控制每页行列
 #    page_limit = 20  # 控制输出页数
@@ -136,28 +145,39 @@ def add_lesson_number_paragraph(document,lesson_number):
     r = run._element
     r.rPr.rFonts.set(qn('w:eastAsia'), u'微软雅黑')
 
-def add_pinyin_paragraph(cell,lesson_number):
+def add_pinyin_paragraph(cell,pinyin_str):
     paragraph1 = cell.add_paragraph(u'')
 
     #add word
     paragraph1.alignment=WD_ALIGN_PARAGRAPH.CENTER
     #set font size
-    run = paragraph1.add_run(lesson_number)
+    print '\npinyin_str='
+    print pinyin_str
+    tmp_str=''
+    for i in range(len(pinyin_str)):
+        tmp_str+=pinyin_str[i][0]
+        if len(pinyin_str)>=0 and i < len(pinyin_str)-1:
+            tmp_str+=' '
+    print tmp_str
+    run = paragraph1.add_run(tmp_str)
     run.font.size = Pt(10)
     run.font.name=u'微软雅黑'
     r = run._element
     r.rPr.rFonts.set(qn('w:eastAsia'), u'微软雅黑')
 
 def add_hanzi_space_paragraph(cell,hanzi_space_number):
+    if hanzi_space_number<=0:
+        return
     paragraph1 = cell.add_paragraph(u'')
 
     #add word
     paragraph1.alignment=WD_ALIGN_PARAGRAPH.CENTER
     #set font size
-    hanzi_space=' '
-    for i in range(hanzi_space_number):
-        hanzi_space+=' '
-    hanzi_space+=' '
+    print '\nhanzi_space_number='+bytes(hanzi_space_number)
+    hanzi_space=''
+    for i in range(hanzi_space_number*2 +hanzi_space_number -1):
+        hanzi_space+=u'__'
+#    hanzi_space+='_'
     run = paragraph1.add_run(hanzi_space)
     run.font.size = Pt(10)
     run.font.name=u'微软雅黑'
@@ -166,46 +186,48 @@ def add_hanzi_space_paragraph(cell,hanzi_space_number):
 
 def create_twolines_table(document):
 #    table = document.add_table(rows=2, cols=len(j))
+#    table = document.add_table(rows=2, cols=page_column_number)
     table = document.add_table(rows=2, cols=page_column_number, style='Table Grid')
 #    table = document.add_table(rows=2, cols=len(j), style='Light Shading Accent 1')
-    table.autofit = False
-#    table.autofit = True
+#    table.autofit = False
+    table.autofit = True
     table.alignment = WD_TABLE_ALIGNMENT.CENTER
+    set_raws_height(table.rows)
     return table
 
 def set_twolines_table_cell(table,lst):
     for i in range(len(lst)):
         py_cell=table.rows[0].cells
-        hz_cell=table.rows[1].cells
-        add_pinyin_paragraph(py_cell[i],lst[i])
+#        hz_cell=table.rows[1].cells
         set_cell_vertical_alignment(py_cell[i])
-        add_hanzi_space_paragraph(hz_cell[i],2)
+        add_pinyin_paragraph(py_cell[i],lst[i])
+#        add_hanzi_space_paragraph(hz_cell[i],2)
     return
 
 def get_py_one_word(lst, index):
-    print 'lst[index]='+bytes(index)
-    print lst[index]
+#    print 'lst[index]='+bytes(index)
+#    print lst[index]
     length=0
     for i in range(len(lst[index])):
-      print len(lst[index][i][0])
+#      print len(lst[index][i][0])
       length+=len(lst[index][i][0])
       length+=1                     #add space
     if length > 0:
       length-=1
-    print length
+#    print length
     return length
 
 def get_hz_one_word(lst, index):
-    print 'lst[index]='+bytes(index)
-    print lst[index]
+#    print 'lst[index]='+bytes(index)
+#    print lst[index]
     length=0
     for i in range(len(lst[index])):
-      print len(lst[index][i][0])
+#      print len(lst[index][i][0])
       length+=len(lst[index][i][0])*2
       length+=1                     #add space
     if length > 0:
       length-=1
-    print length
+#    print length
     return length
 
 def export2doc(hzlst, pylst, export_file_name):
@@ -217,14 +239,16 @@ def export2doc(hzlst, pylst, export_file_name):
     document = Document()
 
     column_width=0
-    begin = 0
+#    begin = 0
+    temp_list=[]
     for j in range(len(pylst)):
-        print j
+#        print j
         if pylst[j][0][0].startswith('#'):
             lesson_number= u'第'+hzlst[j][1:]+u'课'
-            print lesson_number
+            temp_list=[]
+#            print lesson_number
             if first == True:
-                print 'Do nothing for the first #!'
+#                print 'Do nothing for the first #!'
                 first = False
                 add_lesson_number_paragraph(document,lesson_number)
             else:
@@ -235,12 +259,14 @@ def export2doc(hzlst, pylst, export_file_name):
             pylen=get_py_one_word(pylst,j)
             length=max(hzlen,pylen)
             if column_width+length <= page_column_number:
-                print length
+#                print column_width
+                temp_list.append(pylst[j])
+#                print temp_list
             else:
                 table=create_twolines_table(document)
-                temp_list=pylst[begin:j-1]
+#                temp_list=pylst[begin:j-1]
                 set_twolines_table_cell(table,temp_list)
-                begin=j
+#                begin=j
 #            add_lesson_number_paragraph(document,u'#########')
 
      #save file
@@ -258,14 +284,14 @@ def export2doc(hzlst, pylst, export_file_name):
 
 def main():
     hzlst = load_cn_words(get_cn_word_file_path(input_word_list_file))
-    print '\nhzlst='
-    print hzlst
+#    print '\nhzlst='
+#    print hzlst
 
 #    columns, rows = 15, 11  # 控制每页行列
 #    page_limit = 20  # 控制输出页数
     pylst=generator(hzlst)
-    print '\npylst='
-    print pylst
+#    print '\npylst='
+#    print pylst
     export2doc(hzlst,pylst,output_docx_file)
 
 if __name__=="__main__":
